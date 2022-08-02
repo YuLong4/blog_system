@@ -3,6 +3,7 @@ package com.yyl.web.admin;
 import com.yyl.model.ResponseData.StaticticsBo;
 import com.yyl.model.domain.Article;
 import com.yyl.model.domain.Comment;
+import com.yyl.service.IArticleService;
 import com.yyl.service.ISiteService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,5 +39,13 @@ public class AdminController {
         request.setAttribute("articles", articles);
         request.setAttribute("statistics", staticticsBo);
         return "back/index";
+    }
+
+    @Autowired
+    private IArticleService articleServiceImpl;
+    //向文章发表页面跳转
+    @GetMapping(value = "/article/toEditPage")
+    public String newArticle() {
+        return "back/article_edit";
     }
 }

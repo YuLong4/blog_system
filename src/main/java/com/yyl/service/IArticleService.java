@@ -20,4 +20,7 @@ public interface IArticleService {
 
     // 根据文章id查询单个文章详情
     public Article selectArticleWithId(Integer id);
+
+    // 发布文章
+    public void publish(Article article);
 }

@@ -2,6 +2,7 @@ package com.yyl.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.vdurmont.emoji.EmojiParser;
 import com.yyl.dao.ArticleMapper;
 import com.yyl.dao.StatisticMapper;
 import com.yyl.model.domain.Article;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 @Service
 @Transactional
@@ -73,4 +75,16 @@ public class ArticleServiceImpl implements IArticleService {
         return article;
     }
 
+    //发布文章
+    @Override
+    public void publish(Article article) {
+        // 去除表情
+        article.setContent(EmojiParser.parseToAliases(article.getContent()));
+        article.setCreated(new Date());
+        article.setHits(0);
+        article.setCommentsNum(0);
+        //插入文章、同时插入文章统计数据   插入到数据库中
+        articleMapper.publishArticle(article);
+        statisticMapper.addStatistic(article);
+    }
 }
