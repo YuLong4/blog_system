@@ -4,11 +4,11 @@
 
 ### 1.使用Spring Initializr创建项目
 
-![image-20220725122533765](https://github.com/YuLong4/blog_system/blob/main/README.assets\image-20220725122533765.png)
+![image-20220725122533765](https://github.com/YuLong4/blog_system/blob/main/README.assets/image-20220725122533765.png)
 
 预先不清楚依赖时可以先勾选上Spring Web
 
-![image-20220725122637251](https://github.com/YuLong4/blog_system/blob/main/README.assets\image-20220725122637251.png)
+![image-20220725122637251](https://github.com/YuLong4/blog_system/blob/main/README.assets/image-20220725122637251.png)
 
 ### 2.在pom.xml中添加依赖
 
@@ -146,11 +146,11 @@ COOKIE:
 
 全局配置文件application.yml和其他三个配置文件都放在src/main/resources中（3个配置文件自行创建）
 
-![image-20220725175335818](https://github.com/YuLong4/blog_system/blob/main/README.assets\image-20220725175335818.png)
+![image-20220725175335818](https://github.com/YuLong4/blog_system/blob/main/README.assets/image-20220725175335818.png)
 
 ### 4.引入前端资源
 
-![image-20220725181932358](https://github.com/YuLong4/blog_system/blob/main/README.assets\image-20220725181932358.png)
+![image-20220725181932358](https://github.com/YuLong4/blog_system/blob/main/README.assets/image-20220725181932358.png)
 
 ​	static文件夹中存放的是静态资源文件，js、css、img等，templates文件夹中存放的是页面展示所需的Thymeleaf模板页面, back.clien.comm对应后台、前台和公用页面。 i18n存放的是国际化资源文件。 application-*.properties是引入的项目配置文件。
 
@@ -176,7 +176,7 @@ domain存放对应于数据库表的映射实体类。
 
 有着与服务器相关的成员变量，getter、setter方法，和多种不同参的重载构造方法。
 
-![image-20220726105542210](https://github.com/YuLong4/blog_system/blob/main/README.assets\image-20220726105542210.png)
+![image-20220726105542210](https://github.com/YuLong4/blog_system/blob/main/README.assets/image-20220726105542210.png)
 
 ```java
 /**
@@ -298,7 +298,7 @@ public class ArticleResponseData<T> {
 }
 ```
 
-![image-20220726105641946](https://github.com/YuLong4/blog_system/blob/main/README.assets\image-20220726105641946.png)
+![image-20220726105641946](https://github.com/YuLong4/blog_system/blob/main/README.assets/image-20220726105641946.png)
 
 ```java
 /**
@@ -849,11 +849,11 @@ public class BaseInterceptor implements HandlerInterceptor {
 
 此时运行此SpringBoot程序会使用之前在application.yml中配置的server port ： 8080端口。成功运行时，在浏览器中输入localhost:8080即可访问到主页，但是由于在pom的依赖中加入了Security的相关依赖文件，所以会默认启动Security的安全功能。
 
-![image-20220727173817952](https://github.com/YuLong4/blog_system/blob/main/README.assets\image-20220727173817952.png)
+![image-20220727173817952](https://github.com/YuLong4/blog_system/blob/main/README.assets/image-20220727173817952.png)
 
 默认的账号为user，密码会在idea控制台中随机打印出来：
 
-![image-20220727173937824](https://github.com/YuLong4/blog_system/blob/main/README.assets\image-20220727173937824.png)
+![image-20220727173937824](https://github.com/YuLong4/blog_system/blob/main/README.assets/image-20220727173937824.png)
 
 输入账号user 和并复制密码即可登录到主页中。
 
@@ -863,7 +863,7 @@ public class BaseInterceptor implements HandlerInterceptor {
 
 可能的原因是：文件的编码问题。
 
-解决方案：在设置-编辑器-文件编码中，将三处编码都设置为UTF-8。![image-20220727174708486](https://github.com/YuLong4/blog_system/blob/main/README.assets\image-20220727174708486.png)
+解决方案：在设置-编辑器-文件编码中，将三处编码都设置为UTF-8。![image-20220727174708486](https://github.com/YuLong4/blog_system/blob/main/README.assets/image-20220727174708486.png)
 
 同时勾选上`自动转换成ASCII但显示原生的内容`，这样在yml中中文注释就会正常显示。
 
@@ -877,7 +877,7 @@ public class BaseInterceptor implements HandlerInterceptor {
 
 ##### 5.将主页index.html、header.html、footer.html稍微修改
 
-![image-20220727190330140](https://github.com/YuLong4/blog_system/blob/main/README.assets\image-20220727190330140.png)
+![image-20220727190330140](https://github.com/YuLong4/blog_system/blob/main/README.assets/image-20220727190330140.png)
 
 #### 二、文章详情查看
 
@@ -1093,33 +1093,33 @@ private void getArticleComments(HttpServletRequest request, Article article) {
 
 下载解压Redis程序，运行redis-server.exe打开数据库服务。
 
-![image-20220727213716922](https://github.com/YuLong4/blog_system/blob/main/README.assets\image-20220727213716922.png)
+![image-20220727213716922](https://github.com/YuLong4/blog_system/blob/main/README.assets/image-20220727213716922.png)
 
-![image-20220727213723786](https://github.com/YuLong4/blog_system/blob/main/README.assets\image-20220727213723786.png)
+![image-20220727213723786](https://github.com/YuLong4/blog_system/blob/main/README.assets/image-20220727213723786.png)
 
 下载安装Redis Desktop Manager软件
 
 连接到本机的Redis
 
-![image-20220727213859140](https://github.com/YuLong4/blog_system/blob/main/README.assets\image-20220727213859140.png)
+![image-20220727213859140](https://github.com/YuLong4/blog_system/blob/main/README.assets/image-20220727213859140.png)
 
 Host默认为127.0.0.1 port默认为6379
 
 连接成功后如下图
 
-![image-20220727213934626](https://github.com/YuLong4/blog_system/blob/main/README.assets\image-20220727213934626.png)
+![image-20220727213934626](https://github.com/YuLong4/blog_system/blob/main/README.assets/image-20220727213934626.png)
 
 且需保证application-redis.properties配置正确且在application.yml中active
 
-![image-20220727214050272](https://github.com/YuLong4/blog_system/blob/main/README.assets\image-20220727214050272.png)
+![image-20220727214050272](https://github.com/YuLong4/blog_system/blob/main/README.assets/image-20220727214050272.png)
 
-![image-20220727214100755](https://github.com/YuLong4/blog_system/blob/main/README.assets\image-20220727214100755.png)
+![image-20220727214100755](https://github.com/YuLong4/blog_system/blob/main/README.assets/image-20220727214100755.png)
 
 还需保证前期所写的RedisConfig类的自定义RedisTemplate正确
 
 这时运行程序，点击首页中的文章标题，在正确加载文章详情页面后，刷新Redis Manager的0号数据库，这是就会将文章内容缓存到Redis数据库中。
 
-![image-20220727214346193](https://github.com/YuLong4/blog_system/blob/main/README.assets\image-20220727214346193.png)
+![image-20220727214346193](https://github.com/YuLong4/blog_system/blob/main/README.assets/image-20220727214346193.png)
 
 #### 三、文章评论管理
 
