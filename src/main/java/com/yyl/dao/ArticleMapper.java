@@ -30,7 +30,7 @@ public interface ArticleMapper {
     public List<Article> selectArticleWithPage();
 
     //通过id删除文章
-    @Delete("DELECT FROM t_article WHERE id=#{id}")
+    @Delete("DELETE FROM t_article WHERE id=#{id}")
     public void deleteArticleWithId(int id);
 
     // 站点服务统计，统计文章数量

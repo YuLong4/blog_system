@@ -4,8 +4,10 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.vdurmont.emoji.EmojiParser;
 import com.yyl.dao.ArticleMapper;
+import com.yyl.dao.CommentMapper;
 import com.yyl.dao.StatisticMapper;
 import com.yyl.model.domain.Article;
+import com.yyl.model.domain.Comment;
 import com.yyl.model.domain.Statistic;
 import com.yyl.service.IArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
 @Service
 @Transactional
 public class ArticleServiceImpl implements IArticleService {
@@ -25,19 +28,20 @@ public class ArticleServiceImpl implements IArticleService {
     private StatisticMapper statisticMapper;
     @Autowired
     private RedisTemplate redisTemplate;
+
     // 分页查询文章列表
     @Override
     public PageInfo<Article> selectArticleWithPage(Integer page, Integer count) {
         PageHelper.startPage(page, count);
         List<Article> articleList = articleMapper.selectArticleWithPage();
         // 封装文章统计数据
-        for (int i=0;i < articleList.size(); i++){
+        for (int i = 0; i < articleList.size(); i++) {
             Article article = articleList.get(i);
             Statistic statistic = statisticMapper.selectStatisticWithArticleId(article.getId());
             article.setHits(statistic.getHits());
             article.setCommentsNum(statistic.getCommentsNum());
         }
-        PageInfo<Article> pageInfo=new PageInfo<>(articleList);
+        PageInfo<Article> pageInfo = new PageInfo<>(articleList);
         return pageInfo;
     }
 
@@ -45,13 +49,13 @@ public class ArticleServiceImpl implements IArticleService {
     @Override
     public List<Article> getHeatArticles() {
         List<Statistic> list = statisticMapper.getStatistic();
-        List<Article> articlelist=new ArrayList<>();
+        List<Article> articlelist = new ArrayList<>();
         for (int i = 0; i < list.size(); i++) {
             Article article = articleMapper.selectArticleWithId(list.get(i).getArticleId());
             article.setHits(list.get(i).getHits());
             article.setCommentsNum(list.get(i).getCommentsNum());
             articlelist.add(article);
-            if(i>=9){
+            if (i >= 9) {
                 break;
             }
         }
@@ -64,12 +68,12 @@ public class ArticleServiceImpl implements IArticleService {
     public Article selectArticleWithId(Integer id) {
         Article article = null;
         Object o = redisTemplate.opsForValue().get("article_" + id);
-        if(o!=null){
-            article=(Article)o;
-        }else{
+        if (o != null) {
+            article = (Article) o;
+        } else {
             article = articleMapper.selectArticleWithId(id);
-            if(article!=null){
-                redisTemplate.opsForValue().set("article_" + id,article);
+            if (article != null) {
+                redisTemplate.opsForValue().set("article_" + id, article);
             }
         }
         return article;
@@ -86,5 +90,28 @@ public class ArticleServiceImpl implements IArticleService {
         //插入文章、同时插入文章统计数据   插入到数据库中
         articleMapper.publishArticle(article);
         statisticMapper.addStatistic(article);
+    }
+
+    //修改文章
+    @Override
+    public void updateArticleWithId(Article article) {
+        article.setModified(new Date());
+        articleMapper.updateArticleWithId(article);
+        redisTemplate.delete("article_" + article.getId());
+    }
+
+    @Autowired
+    private CommentMapper commentMapper;
+
+    // 删除文章
+    @Override
+    public void deleteArticleWithId(int id) {
+        // 删除文章的同时，删除对应的缓存
+        articleMapper.deleteArticleWithId(id);
+        redisTemplate.delete("article_" + id);
+        // 同时删除对应文章的统计数据
+        statisticMapper.deleteStatisticWithId(id);
+        // 同时删除对应文章的评论数据
+        commentMapper.deleteCommentWithId(id);
     }
 }

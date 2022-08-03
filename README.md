@@ -1276,3 +1276,193 @@ public void publish(Article article) {
 ##### 2.请求处理层实现
 
 在AdminController中添加页面跳转请求的方法。
+
+```java
+@Autowired
+private IArticleService articleServiceImpl;
+//向文章发表页面跳转
+@GetMapping(value = "/article/toEditPage")
+public String newArticle() {
+    return "back/article_edit";
+}
+
+//发表文章
+@PostMapping(value = "/article/publish")
+@ResponseBody
+public ArticleResponseData publishArticle(Article article) {
+    if(StringUtils.isBlank(article.getCategories())) {
+        article.setCategories("默认分类");
+    }
+    try {
+        articleServiceImpl.publish(article);
+        longger.info("文章发布成功");
+        return ArticleResponseData.ok();
+    } catch (Exception e) {
+        longger.error("文章发布失败，错误信息:" + e.getMessage());
+        return ArticleResponseData.fail();
+    }
+}
+
+//跳转到后台文章列表页面
+@GetMapping(value = "/article")
+public String index(@RequestParam(value = "page", defaultValue = "1") int page,
+                    @RequestParam(value = "count", defaultValue = "10")int count,
+                    HttpServletRequest request) {
+    PageInfo<Article> pageInfo = articleServiceImpl.selectArticleWithPage(page, count);
+    request.setAttribute("articles", pageInfo);
+    return "back/article_list";
+}
+```
+
+在编辑文章界面，点击保存文章按钮时，会触发执行subArticle()方法，该方法在article.js文件中。
+
+```js
+/**
+ * 保存文章
+ * @param status
+ */
+function subArticle(status) {
+    var title = $('#articleForm input[name=title]').val();
+    var content =  mditor.value;
+    if (title == '') {
+        tale.alertWarn('请输入文章标题');
+        return;
+    }
+    if (title .length>25) {
+        tale.alertWarn('文章标题不能超过25个字符！');
+        return;
+    }
+    if (content == '') {
+        tale.alertWarn('请输入文章内容');
+        return;
+    }
+    $('#content-editor').val(content);
+    $("#articleForm #status").val(status);
+    $("#articleForm #categories").val($('#multiple-sel').val());
+    var params = $("#articleForm").serialize();
+    var url = $('#articleForm #id').val() != '' ? '/admin/article/modify' : '/admin/article/publish';
+    tale.post({
+        url:url,
+        data:params,
+        success: function (result) {
+            if (result && result.success) {
+                tale.alertOk({
+                    text:'文章保存成功',
+                    then: function () {
+                        setTimeout(function () {
+                            window.location.href = '/admin/article';
+                        }, 500);
+                    }
+                });
+            } else {
+                tale.alertError(result.msg || '保存文章失败！');
+            }
+        }
+    });
+}
+```
+
+#### 三、文章修改
+
+##### 1.业务处理层
+
+###### 1)编写Service层接口方法
+
+在IArticleService中添加修改文章方法
+
+```java
+// 修改文章
+public void updateArticleWithId(Article article);
+```
+
+###### 2)编写Service层接口实现类方法
+
+在ArticleServiceImpl中实现
+
+```java
+//修改文章
+@Override
+public void updateArticleWithId(Article article) {
+    article.setModified(new Date());
+    articleMapper.updateArticleWithId(article);
+    redisTemplate.delete("article_" + article.getId());
+}
+```
+
+对文章进行修改后，又调用redisTemplate删除指定id的文章缓存信息。
+
+##### 2.请求处理层
+
+在AdminController中定义两个方法，分别用于处理跳转到文章修改页面和保存修改文章的操作。
+
+```java
+// 向文章修改页面跳转
+@GetMapping(value = "/article/{id}")
+public String editArticle(@PathVariable("id") String id, HttpServletRequest request) {
+    Article article = articleServiceImpl.selectArticleWithId(Integer.parseInt(id));
+    request.setAttribute("contents", article);
+    request.setAttribute("categories", article.getCategories());
+    return "back/article_edit";
+}
+
+// 修改处理文章
+@PostMapping(value = "/article/modify")
+@ResponseBody
+public ArticleResponseData modifyArticle(Article article) {
+    try {
+        articleServiceImpl.updateArticleWithId(article);
+        logger.info("文章更新成功");
+        return ArticleResponseData.ok();
+    } catch (Exception e) {
+        logger.info("文章更新失败，错误信息:" + e.getMessage());
+        return ArticleResponseData.fail();
+    }
+}
+```
+
+#### 四、文章删除
+
+##### 1.业务处理层
+
+```java
+// 根据主键删除文章
+public void deleteArticleWithId(int id);
+```
+
+```java
+@Autowired
+private CommentMapper commentMapper;
+
+// 删除文章
+@Override
+public void deleteArticleWithId(int id) {
+    // 删除文章的同时，删除对应的缓存
+    articleMapper.deleteArticleWithId(id);
+    redisTemplate.delete("article_" + id);
+    // 同时删除对应文章的统计数据
+    statisticMapper.deleteStatisticWithId(id);
+    // 同时删除对应文章的评论数据
+    commentMapper.deleteCommentWithId(id);
+}
+```
+
+##### 2.请求处理层
+
+在AdminController中添加处理文章删除的方法。
+
+```java
+// 文章删除
+@PostMapping(value = "/article/delete")
+@ResponseBody
+public ArticleResponseData delete(@RequestParam int id) {
+    try {
+        articleServiceImpl.deleteArticleWithId(id);
+        logger.info("文章删除成功");
+        return ArticleResponseData.ok();
+    } catch (Exception e) {
+        logger.error("文章删除失败，错误信息"+e.getMessage());
+        return ArticleResponseData.fail();
+    }
+}
+```
+
