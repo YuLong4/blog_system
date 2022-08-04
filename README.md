@@ -1466,3 +1466,138 @@ public ArticleResponseData delete(@RequestParam int id) {
 }
 ```
 
+### 8.用户登录控制
+
+#### 1.请求处理层实现
+
+在com.yyl.web.client包下创建一个用户登录管理的控制类LoginController
+
+```java
+@Controller
+public class LoginController {
+    //向登录页面跳转，同时封装原始页面地址
+    @GetMapping(value = "/login")
+    public String login(HttpServletRequest request, Map map) {
+        //分别获取请求头和参数url中的原始非拦截的访问路径
+        String referer = request.getHeader("Referer");
+        String url = request.getParameter("url");
+        // 如果参数url中已经封装了原始页面路径，直接返回该路径
+        if (url!=null && !url.equals("")) {
+            map.put("url",url);
+            //如果请求头本身包含登录，将重定向url为空，让后台通过用户角色进行选择跳转
+        }else if (referer!=null && referer.contains("/login")) {
+            map.put("url","");
+            //否则的话，就记住请求头中的原始访问路径
+        }else {
+            map.put("url", referer);
+        }
+        return "comm/login";
+    }
+    //对Security拦截的无权限访问异常处理路径映射
+    @GetMapping(value = "/errorPage/{page}/{code}")
+    public String AccessExceptionHandler(@PathVariable("page") String page,
+                                         @PathVariable("code") String code) {
+        return page+"/+code";
+    }
+}
+```
+
+2.编写 Security认证授权配置类
+
+在com.yyl.web.config包下创建一个用于整合Security进行安全控制的配置类SecurityConfig,并重写自定义用户认证和授权方法。
+
+```java
+@EnableWebSecurity      //开启MVC security安全支持
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
+    @Autowired
+    private DataSource dataSource;
+    @Value("${COOKIE.VALIDITY}")
+    private Integer COOKIE_VALIDITY;
+    /**
+     * 重写configure(HttpSecurity http)方法，进行用户授权管理
+     * @param http
+     * @throws Exception
+     */
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        // 1、自定义用户访问控制
+        http.authorizeRequests()
+                .antMatchers("/","/page/**","/article/**","/login").permitAll()
+                .antMatchers("/back/**","/assets/**","/user/**","/article_img/**").permitAll()
+                .antMatchers("/admin/**").hasRole("admin")
+                .anyRequest().authenticated();
+        // 2、自定义用户登录控制
+        http.formLogin()
+                .loginPage("/login")
+                .usernameParameter("username").passwordParameter("password")
+                .successHandler(new AuthenticationSuccessHandler() {
+                    @Override
+                    public void onAuthenticationSuccess(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Authentication authentication) throws IOException, ServletException {
+                        String url = httpServletRequest.getParameter("url");
+                        // 获取被拦截的原始访问路径
+                        RequestCache requestCache = new HttpSessionRequestCache();
+                        SavedRequest savedRequest = requestCache.getRequest(httpServletRequest,httpServletResponse);
+                        if(savedRequest !=null){
+                            // 如果存在原始拦截路径，登录成功后重定向到原始访问路径
+                            httpServletResponse.sendRedirect(savedRequest.getRedirectUrl());
+                        } else if(url != null && !url.equals("")){
+                            // 跳转到之前所在页面
+                            URL fullURL = new URL(url);
+                            httpServletResponse.sendRedirect(fullURL.getPath());
+                        }else {
+                            // 直接登录的用户，根据用户角色分别重定向到后台首页和前台首页
+                            Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+                            boolean isAdmin = authorities.contains(new SimpleGrantedAuthority("ROLE_admin"));
+                            if(isAdmin){
+                                httpServletResponse.sendRedirect("/admin");
+                            }else {
+                                httpServletResponse.sendRedirect("/");
+                            }
+                        }
+                    }
+                })
+                // 用户登录失败处理
+                .failureHandler(new AuthenticationFailureHandler() {
+                    @Override
+                    public void onAuthenticationFailure(HttpServletRequest httpServletRequest,HttpServletResponse httpServletResponse, AuthenticationException e) throws IOException, ServletException {
+                        // 登录失败后，取出原始页面url并追加在重定向路径上
+                        String url = httpServletRequest.getParameter("url");
+                        httpServletResponse.sendRedirect("/login?error&url="+url);
+                    }
+                });
+        // 3、设置用户登录后cookie有效期，默认值
+        http.rememberMe().alwaysRemember(true).tokenValiditySeconds(COOKIE_VALIDITY);
+        // 4、自定义用户退出控制
+        http.logout().logoutUrl("/logout").logoutSuccessUrl("/");
+        // 5、针对访问无权限页面出现的403页面进行定制处理
+        http.exceptionHandling().accessDeniedHandler(new AccessDeniedHandler() {
+            @Override
+            public void handle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AccessDeniedException e) throws IOException, ServletException {
+                // 如果是权限访问异常，则进行拦截到指定错误页面
+                RequestDispatcher dispatcher = httpServletRequest.getRequestDispatcher("/errorPage/comm/error_403");
+                dispatcher.forward(httpServletRequest, httpServletResponse);
+            }
+        });
+    }
+
+    /**
+     * 重写configure(AuthenticationManagerBuilder auth)方法，进行自定义用户认证
+     * @param auth
+     * @throws Exception
+     */
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        //  密码需要设置编码器
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        //  使用JDBC进行身份认证
+        String userSQL ="select username,password,valid from t_user where username = ?";
+        String authoritySQL ="select u.username,a.authority from t_user u,t_authority a," +
+                "t_user_authority ua where ua.user_id=u.id " +
+                "and ua.authority_id=a.id and u.username =?";
+        auth.jdbcAuthentication().passwordEncoder(encoder)
+                .dataSource(dataSource)
+                .usersByUsernameQuery(userSQL)
+                .authoritiesByUsernameQuery(authoritySQL);
+    }
+}
+```
