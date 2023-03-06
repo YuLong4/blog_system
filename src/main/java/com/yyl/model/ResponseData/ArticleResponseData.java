@@ -1,8 +1,6 @@
 package com.yyl.model.ResponseData;
 
 
-import com.yyl.model.domain.Article;
-
 /**
  * 前端请求响应的封装类
  */

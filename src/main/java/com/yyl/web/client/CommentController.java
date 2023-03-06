@@ -31,7 +31,7 @@ import java.util.Date;
 public class CommentController {
     private static final Logger logger = LoggerFactory.getLogger(CommentController.class);
     @Autowired
-    private ICommentService commentServcieImpl;
+    private ICommentService commentServiceImpl;
 
     // 发表评论操作
     @PostMapping(value = "/publish")
@@ -41,7 +41,7 @@ public class CommentController {
         text = MyUtils.cleanXSS(text);
         text = EmojiParser.parseToAliases(text);
         // 获取当前登录用户
-        User user=(User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         // 封装评论信息
         Comment comments = new Comment();
         comments.setArticleId(aid);
@@ -50,11 +50,11 @@ public class CommentController {
         comments.setAuthor(user.getUsername());
         comments.setContent(text);
         try {
-            commentServcieImpl.pushComment(comments);
-            logger.info("发布评论成功，对应文章id: "+aid);
+            commentServiceImpl.pushComment(comments);
+            logger.info("发布评论成功，对应文章id: " + aid);
             return ArticleResponseData.ok();
         } catch (Exception e) {
-            logger.error("发布评论失败，对应文章id: "+aid +";错误描述: "+e.getMessage());
+            logger.error("发布评论失败，对应文章id: " + aid + ";错误描述: " + e.getMessage());
             return ArticleResponseData.fail();
         }
     }

@@ -1,9 +1,9 @@
 package com.yyl.service.impl;
 
 import com.github.pagehelper.PageHelper;
-import com.yyl.dao.ArticleMapper;
-import com.yyl.dao.CommentMapper;
-import com.yyl.dao.StatisticMapper;
+import com.yyl.mapper.ArticleMapper;
+import com.yyl.mapper.CommentMapper;
+import com.yyl.mapper.StatisticMapper;
 import com.yyl.model.ResponseData.StaticticsBo;
 import com.yyl.model.domain.Article;
 import com.yyl.model.domain.Comment;

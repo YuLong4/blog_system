@@ -3,8 +3,8 @@ package com.yyl.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.yyl.dao.CommentMapper;
-import com.yyl.dao.StatisticMapper;
+import com.yyl.mapper.CommentMapper;
+import com.yyl.mapper.StatisticMapper;
 import com.yyl.model.domain.Comment;
 import com.yyl.model.domain.Statistic;
 import com.yyl.service.ICommentService;

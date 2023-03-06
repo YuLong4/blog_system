@@ -1,5 +1,22 @@
 # 个人博客系统
 
+该个人博客系统是一个基于Spring Boot的Web应用程序，旨在为用户提供一个简单而强大的博客平台。该项目采用了许多现代技术，以提高应用程序的性能和可靠性。
+
+首先，该项目使用了Spring Boot框架，这是一个用于创建基于Java的Web应用程序的强大框架。Spring Boot提供了许多功能和工具，可以大大简化开发过程，并加快应用程序的部署和运行速度。此外，Spring Boot还内置了许多常用的库和组件，例如Tomcat Web服务器、Jackson JSON库等。
+
+在数据层面上，该项目使用了MyBatis框架进行数据库查询。MyBatis是一个流行的ORM框架，可以帮助开发者将Java对象映射到关系型数据库中。该框架提供了许多便利的工具，例如注解、XML配置文件等，使得数据访问层的开发变得更加容易。
+
+为了展示数据，该项目使用了Thymeleaf模板引擎。Thymeleaf是一种基于HTML的模板引擎，可以帮助开发者更方便地在前端展示动态数据。与其他模板引擎不同的是，Thymeleaf可以直接在HTML文件中编写动态数据，因此在应用程序开发过程中非常方便。
+
+为了提高应用程序的性能，该项目使用了Redis进行缓存管理。Redis是一种流行的内存数据库，可以高效地存储和检索数据。使用Redis可以大大提高应用程序的响应速度，尤其是在大量数据的情况下。
+
+最后，为了保障应用程序的安全性，该项目使用了Spring Security进行权限管理。Spring Security是一个功能强大的安全框架，可以帮助开发者构建安全的Web应用程序。该框架提供了许多功能，例如身份验证、授权、角色管理等，可以帮助开发者有效地保护应用程序的安全性。
+
+综上所述，该个人博客项目采用了许多现代技术，旨在为用户提供一个简单而强大的博客平台。无论是在性能、可靠性还是安全性方面，该项目都具备出色的表现，是一款非常值得尝试的Web应用程序。
+
+
+
+
 ## SpringBoot开发步骤
 
 ### 1.使用Spring Initializr创建项目
@@ -131,7 +148,7 @@ mybatis:
   # 配置MyBatis的XML映射文件路径
   mapper-locations: classpath:mapper/*.xml
   # 配置XML映射文件中指定的实体类别名路径
-  type-aliases-package: com.yyl.model.domain
+  type-aliases-package: com.yyl.model.entity
 # Pagehelper分页设置
 pagehelper:
   helper-dialect: mysql
@@ -661,9 +678,9 @@ namespace属性声明了文章类接口对应的位置
 
 ```xml
 ArticleMapper.xml
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.yyl.dao.ArticleMapper">
+        <?xml version="1.0" encoding="UTF-8" ?>
+        <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yyl.mapper.ArticleMapper">
     <update id="updateArticleWithId" parameterType="Article">
         update t_article
         <set>

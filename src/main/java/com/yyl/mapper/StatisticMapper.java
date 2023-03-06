@@ -1,4 +1,4 @@
-package com.yyl.dao;
+package com.yyl.mapper;
 
 import com.yyl.model.domain.Article;
 import com.yyl.model.domain.Statistic;

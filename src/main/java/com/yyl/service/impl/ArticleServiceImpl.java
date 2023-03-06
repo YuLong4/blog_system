@@ -3,11 +3,10 @@ package com.yyl.service.impl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.vdurmont.emoji.EmojiParser;
-import com.yyl.dao.ArticleMapper;
-import com.yyl.dao.CommentMapper;
-import com.yyl.dao.StatisticMapper;
+import com.yyl.mapper.ArticleMapper;
+import com.yyl.mapper.CommentMapper;
+import com.yyl.mapper.StatisticMapper;
 import com.yyl.model.domain.Article;
-import com.yyl.model.domain.Comment;
 import com.yyl.model.domain.Statistic;
 import com.yyl.service.IArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +27,8 @@ public class ArticleServiceImpl implements IArticleService {
     private StatisticMapper statisticMapper;
     @Autowired
     private RedisTemplate redisTemplate;
+    @Autowired
+    private CommentMapper commentMapper;
 
     // 分页查询文章列表
     @Override
@@ -87,7 +88,7 @@ public class ArticleServiceImpl implements IArticleService {
         article.setCreated(new Date());
         article.setHits(0);
         article.setCommentsNum(0);
-        //插入文章、同时插入文章统计数据   插入到数据库中
+        //插入文章、同时插入文章计数据到数据库中
         articleMapper.publishArticle(article);
         statisticMapper.addStatistic(article);
     }
@@ -100,8 +101,6 @@ public class ArticleServiceImpl implements IArticleService {
         redisTemplate.delete("article_" + article.getId());
     }
 
-    @Autowired
-    private CommentMapper commentMapper;
 
     // 删除文章
     @Override

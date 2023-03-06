@@ -30,7 +30,14 @@ public class AdminController {
     @Autowired
     private ISiteService siteServiceImpl;
 
-    //管理中心起始页
+    @Autowired
+    private IArticleService articleServiceImpl;
+
+    /**
+     * 管理中心起始页
+     * 未登录会被跳转到登陆页
+     */
+
     @GetMapping(value = {"", "/index"})
     public String index(HttpServletRequest request) {
         //获取最新的5篇博客、评论以及统计数据
@@ -43,9 +50,6 @@ public class AdminController {
         request.setAttribute("statistics", staticticsBo);
         return "back/index";
     }
-
-    @Autowired
-    private IArticleService articleServiceImpl;
 
     //向文章发表页面跳转
     @GetMapping(value = "/article/toEditPage")

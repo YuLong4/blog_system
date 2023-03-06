@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 7001
 spring:
   profiles:
     # 外置JDBC、Redis和Mail配置文件

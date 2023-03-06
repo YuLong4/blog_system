@@ -1,4 +1,4 @@
-package com.yyl.dao;
+package com.yyl.mapper;
 
 import com.yyl.model.domain.Comment;
 import org.apache.ibatis.annotations.Delete;
